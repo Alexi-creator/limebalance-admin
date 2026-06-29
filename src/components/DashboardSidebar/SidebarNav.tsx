@@ -1,0 +1,61 @@
+import { NavLink, Text } from "@mantine/core"
+import { useSidebarStore } from "@store/sidebarStore"
+import { Fragment } from "react"
+import { useLocation, useNavigate } from "react-router-dom"
+import { navGroups } from "./config"
+
+/**
+ * Dashboard navigation groups. Locally subscribed to the current path (`useLocation`),
+ * so on navigation only this block re-renders, not the whole sidebar.
+ */
+export function SidebarNav() {
+  const navigate = useNavigate()
+  const { pathname } = useLocation()
+  const close = useSidebarStore((s) => s.close)
+
+  return (
+    <>
+      {navGroups.map((group, groupIndex) => (
+        <Fragment key={group.title}>
+          <Text
+            ff="monospace"
+            size="xs"
+            c="dimmed"
+            tt="uppercase"
+            px="xs"
+            pb={6}
+            pt={groupIndex === 0 ? "xs" : "xl"}
+            style={{ letterSpacing: "0.06em" }}
+          >
+            {group.title}
+          </Text>
+
+          {group.items.map((item) => {
+            const Icon = item.icon
+            const isActive = pathname === item.to
+
+            return (
+              <NavLink
+                key={item.to}
+                label={item.label}
+                leftSection={
+                  <Icon
+                    size={18}
+                    style={{ color: isActive ? "var(--mantine-color-lime-4)" : undefined }}
+                  />
+                }
+                active={isActive}
+                color="lime"
+                variant="light"
+                onClick={() => {
+                  navigate(item.to)
+                  close()
+                }}
+              />
+            )
+          })}
+        </Fragment>
+      ))}
+    </>
+  )
+}

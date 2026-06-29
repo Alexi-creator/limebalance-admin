@@ -1,0 +1,13 @@
+/* Don't use CSS `light-dark()` here: the prod build (rolldown-vite + lightningcss) polyfills it
+   into an undefined-variable form that collapses to an invalid two-color `background` and gets
+   dropped — so the tint vanishes in prod. Drive it off Mantine's color-scheme attribute instead,
+   exactly how Mantine ships its own compiled styles. */
+.root {
+  background: var(--mantine-color-body);
+}
+
+/* In light theme the default white header against the gray page reads as too harsh —
+   tint it to a barely-there off-white to soften the contrast. */
+[data-mantine-color-scheme="light"] .root {
+  background: var(--mantine-color-gray-0);
+}
