@@ -3,28 +3,11 @@ import type { User } from "@appTypes/user"
 import { userSchema } from "@appTypes/user"
 import { API_URLS } from "@constants/apiUrls"
 import { HttpMethods } from "@constants/httpMethods"
-import type { TelegramAuthData } from "@telegram-auth/react"
 import { commonRequest } from "@utils/commonRequest"
-import { getBrowserTimezone } from "@utils/getBrowserTimezone"
 
 export interface LoginPayload {
   email: string
   password: string
-}
-
-export interface RegisterPayload {
-  email: string
-  password: string
-}
-
-// on registration we send the browser timezone — the backend derives the default currency from it
-// (ignored on subsequent logins; the frontend does not compute or send the currency)
-// user data after these requests is taken from getMe(), so we do not use their response
-export function register(payload: RegisterPayload): Promise<void> {
-  return commonRequest<void>(API_URLS.auth.register, {
-    method: HttpMethods.POST,
-    body: JSON.stringify({ ...payload, timezone: getBrowserTimezone() }),
-  })
 }
 
 export function login(payload: LoginPayload): Promise<void> {
@@ -112,31 +95,4 @@ export function resetPassword(payload: { token: string; password: string }): Pro
 
 export async function logout(): Promise<void> {
   await request(API_URLS.auth.logout, { method: HttpMethods.POST })
-}
-
-export function loginTelegram(data: TelegramAuthData): Promise<void> {
-  // timezone — a regular field next to the widget data, not part of the Telegram signature
-  return commonRequest<void>(API_URLS.auth.telegram, {
-    method: HttpMethods.POST,
-    body: JSON.stringify({ ...data, timezone: getBrowserTimezone() }),
-  })
-}
-
-/**
- * Link Telegram to the current (already authenticated) account — for those who
- * registered in the dashboard. Goes through `request` (with auth/refresh). The current
- * user after linking is taken from `getMe()`.
- */
-export function linkTelegram(data: TelegramAuthData): Promise<void> {
-  return request(API_URLS.auth.linkTelegram, {
-    method: HttpMethods.POST,
-    body: JSON.stringify(data),
-  })
-}
-
-export function loginGoogle(credential: string): Promise<void> {
-  return commonRequest<void>(API_URLS.auth.google, {
-    method: HttpMethods.POST,
-    body: JSON.stringify({ credential, timezone: getBrowserTimezone() }),
-  })
 }

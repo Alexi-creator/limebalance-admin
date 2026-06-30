@@ -19,8 +19,13 @@ export const subscriptionSchema = z.object({
   expiresAt: z.string().nullish(),
 })
 
+export const roleSchema = z.enum(["USER", "ADMIN"])
+export type Role = z.infer<typeof roleSchema>
+
 export const userSchema = z.object({
   // id: z.string(),
+  /** Account role. Only ADMIN may access this panel — see the auth gate in AuthPage/useAuthInit. */
+  role: roleSchema,
   email: z.email().nullish(),
   telegramId: z.string().nullish(),
   name: z.string().nullish(),

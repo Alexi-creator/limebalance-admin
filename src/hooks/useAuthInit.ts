@@ -12,6 +12,12 @@ export function useAuthInit() {
     const resolveUser = async () => {
       try {
         const user = await checkAuth()
+        // This panel is admin-only: a valid but non-admin session is treated as "not logged in",
+        // so a regular user lands on the login screen instead of an empty, 403-ing dashboard.
+        if (user.role !== "ADMIN") {
+          setUser(null)
+          return
+        }
         setUser(user)
         syncTimezone(user)
       } catch (err) {

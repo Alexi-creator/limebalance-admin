@@ -1,16 +1,12 @@
 import { GlobalModal } from "@components/GlobalModal"
 import { GuestRoute } from "@components/GuestRoute"
 import { ProtectedRoute } from "@components/ProtectedRoute"
-import { getEnv } from "@constants/env"
 import { useAuthInit } from "@hooks/useAuthInit"
 import { Layout } from "@layout/Layout"
 import { PublicLayout } from "@layout/PublicLayout"
 import { LoadingOverlay } from "@mantine/core"
-import { GoogleOAuthProvider } from "@react-oauth/google"
 import { appRoutes, publicRoutes } from "@settings/routesConfig"
 import { Route, Routes } from "react-router-dom"
-
-const GOOGLE_CLIENT_ID = getEnv("VITE_GOOGLE_CLIENT_ID")
 
 function App() {
   const { isInitialized } = useAuthInit()
@@ -18,7 +14,7 @@ function App() {
   if (!isInitialized) return <LoadingOverlay visible />
 
   return (
-    <GoogleOAuthProvider clientId={GOOGLE_CLIENT_ID}>
+    <>
       <GlobalModal />
 
       <Routes>
@@ -38,7 +34,7 @@ function App() {
           </Route>
         </Route>
       </Routes>
-    </GoogleOAuthProvider>
+    </>
   )
 }
 
