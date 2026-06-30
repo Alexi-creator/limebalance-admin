@@ -1,6 +1,6 @@
 # syntax=docker/dockerfile:1
 
-# --- deps/dev stage: для локального dev через docker compose ---
+# --- deps/dev stage: for local dev via docker compose ---
 FROM node:22-alpine AS dev
 WORKDIR /app
 COPY package.json package-lock.json ./
@@ -9,7 +9,7 @@ COPY . .
 EXPOSE 5173
 CMD ["npm", "run", "dev", "--", "--host"]
 
-# --- builder stage: сборка статики ---
+# --- builder stage: build static assets ---
 FROM node:22-alpine AS builder
 WORKDIR /app
 COPY package.json package-lock.json ./
@@ -17,7 +17,7 @@ RUN npm ci
 COPY . .
 RUN npm run build
 
-# --- production stage: nginx отдаёт статику SPA ---
+# --- production stage: nginx serves the SPA static assets ---
 FROM nginx:alpine AS production
 COPY --from=builder /app/dist /usr/share/nginx/html
 COPY deploy/nginx.conf /etc/nginx/conf.d/default.conf
