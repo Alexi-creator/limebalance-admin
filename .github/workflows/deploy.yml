@@ -108,7 +108,7 @@ jobs:
               --name limebalance-admin \
               --env-file /opt/limebalance-admin/.env \
               --restart unless-stopped \
-              -p 127.0.0.1:3002:80 \
+              -p 127.0.0.1:3003:80 \
               "$GHCR_IMAGE"
             echo "::endgroup::"
 
