@@ -48,3 +48,4 @@ In dev, Vite proxies `/api` to `http://localhost:3000` (the backend) — see `vi
 pipeline (`.github/workflows/deploy.yml`) which builds the image, pushes it to GHCR and
 restarts the `limebalance-admin` container on the VPS.
 # limebalance-admin
+
