@@ -14,8 +14,11 @@ export const API_URLS = {
     forgotPassword: `${API_URL}/auth/forgot-password`,
     resetPassword: `${API_URL}/auth/reset-password`,
   },
-  users: {
-    users: `${API_URL}/users`,
-    user: `${API_URL}/users/:id`,
+  admin: {
+    users: `${API_URL}/admin/users`,
+    user: (id: string) => `${API_URL}/admin/users/${id}`,
+    block: (id: string) => `${API_URL}/admin/users/${id}/block`,
+    unblock: (id: string) => `${API_URL}/admin/users/${id}/unblock`,
+    plan: (id: string) => `${API_URL}/admin/users/${id}/plan`,
   },
 }
