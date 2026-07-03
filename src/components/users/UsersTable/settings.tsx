@@ -1,4 +1,5 @@
 import type { AdminUser } from "@appTypes/adminUser"
+import { planColor } from "@constants/planColors"
 import { Badge, Group, Text, Tooltip } from "@mantine/core"
 import {
   IconBrandGoogleFilled,
@@ -13,7 +14,6 @@ import type { ReactNode } from "react"
 import { RowActions } from "./RowActions"
 
 const ROLE_COLOR: Record<string, string> = { ADMIN: "violet", USER: "gray" }
-const PLAN_COLOR: Record<string, string> = { free: "gray", pro: "blue", ultra: "yellow" }
 
 function fmtDate(iso: string | null): string {
   if (!iso) return "—"
@@ -81,7 +81,7 @@ export function getUserColumns(): DataTableColumn<AdminUser>[] {
       render: (u) =>
         u.plan ? (
           <Group gap={6} wrap="nowrap">
-            <Badge color={PLAN_COLOR[u.plan] ?? "gray"} variant="light" size="sm">
+            <Badge color={planColor(u.plan)} variant="light" size="sm">
               {u.plan}
             </Badge>
             {u.planExpiresAt && (

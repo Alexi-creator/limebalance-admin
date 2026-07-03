@@ -1,6 +1,6 @@
 import { RouteNames } from "@constants/routeNames"
 import type { Icon } from "@tabler/icons-react"
-import { IconUsers } from "@tabler/icons-react"
+import { IconReceipt2, IconUsers } from "@tabler/icons-react"
 
 interface NavItem {
   to: string
@@ -20,6 +20,9 @@ interface NavGroup {
 export const navGroups: NavGroup[] = [
   {
     title: "Menu",
-    items: [{ to: RouteNames.Home, label: "Users", icon: IconUsers }],
+    items: [
+      { to: RouteNames.Home, label: "Users", icon: IconUsers },
+      { to: RouteNames.Plans, label: "Plans", icon: IconReceipt2 },
+    ],
   },
 ]

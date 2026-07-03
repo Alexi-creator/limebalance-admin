@@ -20,5 +20,7 @@ export const API_URLS = {
     block: (id: string) => `${API_URL}/admin/users/${id}/block`,
     unblock: (id: string) => `${API_URL}/admin/users/${id}/unblock`,
     plan: (id: string) => `${API_URL}/admin/users/${id}/plan`,
+    plans: `${API_URL}/admin/plans`,
+    planItem: (id: string) => `${API_URL}/admin/plans/${id}`,
   },
 }
