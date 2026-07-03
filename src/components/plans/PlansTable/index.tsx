@@ -18,12 +18,14 @@ export function PlansTable({ records, fetching, isError }: Props) {
       pinLastColumn
       idAccessor="id"
       fetching={fetching}
-      noRecordsText={isError ? "Failed to load plans" : "Nothing found"}
+      noRecordsText={isError ? "Failed to load plans" : "No plans yet — create one"}
       striped
       highlightOnHover
       verticalSpacing="sm"
       minHeight={160}
       style={{ flex: 1, minHeight: 0 }}
+      // dim archived plans so on-sale tariffs stand out at a glance
+      rowStyle={(p) => (p.isArchived ? { opacity: 0.55 } : undefined)}
     />
   )
 }

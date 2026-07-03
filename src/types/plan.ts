@@ -15,8 +15,14 @@ export const planSchema = z.object({
   /** Monthly price as a number (not a string). */
   price: z.number(),
   investingAccess: z.boolean(),
-  /** How many users are currently on this plan. */
+  /** ISO date-time the plan was archived (taken off sale), or null if still on sale. */
+  archivedAt: z.string().nullable(),
+  /** Convenience mirror of `archivedAt !== null`. */
+  isArchived: z.boolean(),
+  /** All subscription rows pointing at this plan — includes expired ones. */
   subscribers: z.number(),
+  /** Subscriptions that are still active right now (not expired). */
+  activeSubscribers: z.number(),
 })
 
 export const plansSchema = z.array(planSchema)

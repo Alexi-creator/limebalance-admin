@@ -1,3 +1,6 @@
+/** The fallback plan every user lands on. It cannot be archived, deleted, or renamed. */
+export const FREE_PLAN = "free"
+
 /** Badge color per plan name, shared by the users and plans tables so they stay in sync. */
 export const PLAN_COLOR: Record<string, string> = { free: "gray", pro: "blue", ultra: "green" }
 
