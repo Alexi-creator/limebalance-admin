@@ -1,5 +1,6 @@
 export const RouteNames = {
   Home: "/",
+  Plans: "/plans",
   Auth: "/auth",
 } as const
 
