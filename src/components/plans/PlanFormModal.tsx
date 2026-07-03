@@ -1,7 +1,8 @@
-import type { CreatePlanPayload } from "@api/adminPlans"
+import type { CreatePlanPayload, UpdatePlanPayload } from "@api/adminPlans"
 import { createPlan, updatePlan } from "@api/adminPlans"
 import { ApiError } from "@api/apiError"
 import type { Plan } from "@appTypes/plan"
+import { HttpStatus } from "@constants/httpStatus"
 import { planKeys } from "@constants/queries/plans"
 import { Button, Group, NumberInput, Stack, Switch, Text, TextInput } from "@mantine/core"
 import { useForm } from "@mantine/form"
@@ -26,6 +27,43 @@ function isValidLimit(unlimited: boolean, value: number | string): boolean {
   if (unlimited) return true
   const n = Number(value)
   return Number.isInteger(n) && n >= 0
+}
+
+/** A limit is null when its "Unlimited" checkbox is on, otherwise the entered number. */
+function limitFrom(unlimited: boolean, value: number | string): number | null {
+  return unlimited ? null : Number(value)
+}
+
+function buildCreateBody(values: FormValues): CreatePlanPayload {
+  return {
+    name: values.name.trim(),
+    price: Number(values.price),
+    maxCategories: limitFrom(values.maxCategoriesUnlimited, values.maxCategories),
+    maxTransactionsPerMonth: limitFrom(values.maxTxUnlimited, values.maxTransactionsPerMonth),
+    investingAccess: values.investingAccess,
+  }
+}
+
+/** PATCH body with only the fields that actually changed. Name isn't editable on update. */
+function buildUpdateBody(values: FormValues, plan: Plan): UpdatePlanPayload {
+  const body: UpdatePlanPayload = {}
+
+  const price = Number(values.price)
+  if (price !== plan.price) body.price = price
+
+  const maxCategories = limitFrom(values.maxCategoriesUnlimited, values.maxCategories)
+  if (maxCategories !== plan.maxCategories) body.maxCategories = maxCategories
+
+  const maxTransactionsPerMonth = limitFrom(values.maxTxUnlimited, values.maxTransactionsPerMonth)
+  if (maxTransactionsPerMonth !== plan.maxTransactionsPerMonth) {
+    body.maxTransactionsPerMonth = maxTransactionsPerMonth
+  }
+
+  if (values.investingAccess !== plan.investingAccess) {
+    body.investingAccess = values.investingAccess
+  }
+
+  return body
 }
 
 /** Create a new tariff or edit an existing one. Toggling "Unlimited" sends the limit as null. */
@@ -56,30 +94,45 @@ export function PlanFormModal({ plan }: { plan?: Plan }) {
   })
 
   const mutation = useMutation({
-    mutationFn: (payload: CreatePlanPayload) =>
-      isEdit ? updatePlan(plan.id, payload) : createPlan(payload),
+    mutationFn: (values: FormValues) =>
+      isEdit
+        ? updatePlan(plan.id, buildUpdateBody(values, plan))
+        : createPlan(buildCreateBody(values)),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: planKeys.all })
       notifications.show({ color: "green", message: isEdit ? "Plan updated" : "Plan created" })
       close()
     },
-    onError: (err) =>
+    onError: (err) => {
+      // 400/409 are name problems (bad slug / already taken) — show them on the field, not a toast
+      if (
+        err instanceof ApiError &&
+        (err.status === HttpStatus.CONFLICT || err.status === HttpStatus.BAD_REQUEST)
+      ) {
+        form.setFieldError("name", err.message)
+        return
+      }
+      // the plan vanished under us — drop the modal and refresh the list
+      if (err instanceof ApiError && err.status === HttpStatus.NOT_FOUND) {
+        queryClient.invalidateQueries({ queryKey: planKeys.all })
+        notifications.show({ color: "red", message: "Plan not found" })
+        close()
+        return
+      }
       notifications.show({
         color: "red",
         message: err instanceof ApiError ? err.message : "Failed to save plan",
-      }),
+      })
+    },
   })
 
   const handleSubmit = (values: FormValues) => {
-    mutation.mutate({
-      name: values.name.trim(),
-      price: Number(values.price),
-      maxCategories: values.maxCategoriesUnlimited ? null : Number(values.maxCategories),
-      maxTransactionsPerMonth: values.maxTxUnlimited
-        ? null
-        : Number(values.maxTransactionsPerMonth),
-      investingAccess: values.investingAccess,
-    })
+    // On edit with no actual changes, skip the request and just close.
+    if (isEdit && Object.keys(buildUpdateBody(values, plan)).length === 0) {
+      close()
+      return
+    }
+    mutation.mutate(values)
   }
 
   return (
@@ -89,11 +142,14 @@ export function PlanFormModal({ plan }: { plan?: Plan }) {
           <TextInput
             label="Name (slug)"
             placeholder="pro"
-            withAsterisk
+            withAsterisk={!isEdit}
+            disabled={isEdit}
             {...form.getInputProps("name")}
           />
           <Text size="xs" c="dimmed">
-            Lowercase letters, digits and dashes
+            {isEdit
+              ? "The name can't be changed after creation"
+              : "Lowercase letters, digits and dashes"}
           </Text>
         </Stack>
 

@@ -1,4 +1,4 @@
-import { getPlans } from "@api/adminPlans"
+import { listPlans } from "@api/adminPlans"
 import { PlanFormModal } from "@components/plans/PlanFormModal"
 import { PlansTable } from "@components/plans/PlansTable"
 import { PLANS_STALE_TIME, planKeys } from "@constants/queries/plans"
@@ -12,7 +12,7 @@ export function PlansPage() {
 
   const { data, isLoading, isError } = useQuery({
     queryKey: planKeys.list(),
-    queryFn: getPlans,
+    queryFn: listPlans,
     staleTime: PLANS_STALE_TIME,
   })
 

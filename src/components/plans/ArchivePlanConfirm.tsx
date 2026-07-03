@@ -1,4 +1,4 @@
-import { deletePlan } from "@api/adminPlans"
+import { archivePlan, unarchivePlan } from "@api/adminPlans"
 import { ApiError } from "@api/apiError"
 import type { Plan } from "@appTypes/plan"
 import { HttpStatus } from "@constants/httpStatus"
@@ -10,22 +10,26 @@ import { useMutation, useQueryClient } from "@tanstack/react-query"
 import { PlanSummary } from "./PlanSummary"
 
 /**
- * Confirm deleting a tariff. The backend rejects deleting the `free` fallback plan or any plan
- * that still has subscribers — those come back as a 409 whose message is shown to the admin.
+ * Confirm taking a plan off sale (archive) or putting it back (unarchive). Archiving hides the
+ * plan from new subscriptions while current subscribers keep their paid term — it's reversible.
  */
-export function DeletePlanConfirm({ plan }: { plan: Plan }) {
+export function ArchivePlanConfirm({ plan }: { plan: Plan }) {
   const close = useModalStore((s) => s.close)
   const queryClient = useQueryClient()
+  const archiving = !plan.isArchived
 
   const mutation = useMutation({
-    mutationFn: () => deletePlan(plan.id),
+    mutationFn: () => (archiving ? archivePlan(plan.id) : unarchivePlan(plan.id)),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: planKeys.all })
-      notifications.show({ color: "green", message: "Plan deleted" })
+      notifications.show({
+        color: "green",
+        message: archiving ? "Plan archived" : "Plan back on sale",
+      })
       close()
     },
     onError: (err) => {
-      // the plan is already gone — refresh the list so the stale row disappears
+      // the plan vanished under us — refresh the list so the stale row disappears
       if (err instanceof ApiError && err.status === HttpStatus.NOT_FOUND) {
         queryClient.invalidateQueries({ queryKey: planKeys.all })
         notifications.show({ color: "red", message: "Plan not found" })
@@ -34,7 +38,7 @@ export function DeletePlanConfirm({ plan }: { plan: Plan }) {
       }
       notifications.show({
         color: "red",
-        message: err instanceof ApiError ? err.message : "Delete failed",
+        message: err instanceof ApiError ? err.message : "Action failed",
       })
     },
   })
@@ -42,8 +46,9 @@ export function DeletePlanConfirm({ plan }: { plan: Plan }) {
   return (
     <Stack gap="md">
       <Text size="sm">
-        Delete this tariff permanently? This cannot be undone. To retire a plan people are still on,
-        archive it instead.
+        {archiving
+          ? "The plan will be hidden from new subscriptions. Current subscribers keep their paid term on the old limits and features. You can put it back on sale at any time."
+          : "The plan will be available for new subscriptions again."}
       </Text>
 
       <PlanSummary plan={plan} />
@@ -52,8 +57,12 @@ export function DeletePlanConfirm({ plan }: { plan: Plan }) {
         <Button variant="default" onClick={close} disabled={mutation.isPending}>
           Cancel
         </Button>
-        <Button color="red" loading={mutation.isPending} onClick={() => mutation.mutate()}>
-          Delete
+        <Button
+          color={archiving ? "orange" : "green"}
+          loading={mutation.isPending}
+          onClick={() => mutation.mutate()}
+        >
+          {archiving ? "Archive" : "Return to sale"}
         </Button>
       </Group>
     </Stack>

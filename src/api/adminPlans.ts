@@ -4,8 +4,8 @@ import { planSchema, plansSchema } from "@appTypes/plan"
 import { API_URLS } from "@constants/apiUrls"
 import { HttpMethods } from "@constants/httpMethods"
 
-/** All tariffs, cheapest first. The backend returns the whole list in one shot. */
-export function getPlans(): Promise<Plan[]> {
+/** All tariffs, cheapest first (order comes from the backend — don't re-sort). */
+export function listPlans(): Promise<Plan[]> {
   return request<Plan[]>(API_URLS.admin.plans, { schema: plansSchema })
 }
 
@@ -40,6 +40,22 @@ export function updatePlan(id: string, payload: UpdatePlanPayload): Promise<Plan
   return request<Plan>(API_URLS.admin.planItem(id), {
     method: HttpMethods.PATCH,
     body: JSON.stringify(payload),
+    schema: planSchema,
+  })
+}
+
+/** Take a plan off sale: hidden from new subscriptions, current subscribers keep their terms. */
+export function archivePlan(id: string): Promise<Plan> {
+  return request<Plan>(API_URLS.admin.planArchive(id), {
+    method: HttpMethods.PATCH,
+    schema: planSchema,
+  })
+}
+
+/** Put an archived plan back on sale. */
+export function unarchivePlan(id: string): Promise<Plan> {
+  return request<Plan>(API_URLS.admin.planUnarchive(id), {
+    method: HttpMethods.PATCH,
     schema: planSchema,
   })
 }

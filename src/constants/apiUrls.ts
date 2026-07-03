@@ -22,5 +22,7 @@ export const API_URLS = {
     plan: (id: string) => `${API_URL}/admin/users/${id}/plan`,
     plans: `${API_URL}/admin/plans`,
     planItem: (id: string) => `${API_URL}/admin/plans/${id}`,
+    planArchive: (id: string) => `${API_URL}/admin/plans/${id}/archive`,
+    planUnarchive: (id: string) => `${API_URL}/admin/plans/${id}/unarchive`,
   },
 }

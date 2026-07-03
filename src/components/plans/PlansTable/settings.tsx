@@ -1,6 +1,6 @@
 import type { Plan } from "@appTypes/plan"
 import { planColor } from "@constants/planColors"
-import { Badge, Text } from "@mantine/core"
+import { Badge, Group, Text, Tooltip } from "@mantine/core"
 import { IconCircleCheckFilled, IconCircleX } from "@tabler/icons-react"
 import type { DataTableColumn } from "mantine-datatable"
 import { RowActions } from "./RowActions"
@@ -31,11 +31,18 @@ export function getPlanColumns(): DataTableColumn<Plan>[] {
     {
       accessor: "name",
       title: "Name",
-      width: 160,
+      width: 180,
       render: (p) => (
-        <Badge color={planColor(p.name)} variant="light" size="sm">
-          {p.name}
-        </Badge>
+        <Group gap={6} wrap="nowrap">
+          <Badge color={planColor(p.name)} variant="light" size="sm">
+            {p.name}
+          </Badge>
+          {p.isArchived && (
+            <Badge color="gray" variant="outline" size="sm">
+              Archived
+            </Badge>
+          )}
+        </Group>
       ),
     },
     {
@@ -83,20 +90,22 @@ export function getPlanColumns(): DataTableColumn<Plan>[] {
       render: (p) => <BoolIcon value={p.investingAccess} />,
     },
     {
-      accessor: "subscribers",
+      accessor: "activeSubscribers",
       title: "Subscribers",
       width: 120,
       textAlign: "right",
       render: (p) => (
-        <Text size="sm" ff="monospace">
-          {p.subscribers}
-        </Text>
+        <Tooltip withArrow label={`${p.subscribers} total, incl. expired`}>
+          <Text size="sm" ff="monospace">
+            {p.activeSubscribers}
+          </Text>
+        </Tooltip>
       ),
     },
     {
       accessor: "actions",
       title: "",
-      width: 90,
+      width: 120,
       textAlign: "center",
       render: (p) => <RowActions plan={p} />,
     },
