@@ -63,6 +63,21 @@ export function getUserColumns(): DataTableColumn<AdminUser>[] {
         ),
     },
     {
+      accessor: "telegramUsername",
+      title: "Telegram",
+      sortable: true,
+      ellipsis: true,
+      width: 140,
+      render: (u) =>
+        u.telegramUsername ? (
+          <Text size="sm">@{u.telegramUsername}</Text>
+        ) : (
+          <Text size="sm" c="dimmed">
+            —
+          </Text>
+        ),
+    },
+    {
       accessor: "role",
       title: "Role",
       sortable: true,
