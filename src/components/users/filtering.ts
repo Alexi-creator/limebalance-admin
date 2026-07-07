@@ -8,6 +8,8 @@ function sortValue(user: AdminUser, column: string): string | number {
       return user.email?.toLowerCase() ?? ""
     case "name":
       return user.name.toLowerCase()
+    case "telegramUsername":
+      return user.telegramUsername?.toLowerCase() ?? ""
     case "role":
       return user.role
     case "plan":
@@ -33,7 +35,7 @@ export function filterAndSortUsers(users: AdminUser[], params: UsersParams): Adm
 
   const filtered = users.filter((u) => {
     if (search) {
-      const haystack = `${u.email ?? ""} ${u.name}`.toLowerCase()
+      const haystack = `${u.email ?? ""} ${u.name} ${u.telegramUsername ?? ""}`.toLowerCase()
       if (!haystack.includes(search)) return false
     }
     if (params.role !== "all" && u.role !== params.role) return false

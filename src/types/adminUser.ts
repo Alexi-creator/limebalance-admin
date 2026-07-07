@@ -26,6 +26,8 @@ export const adminUserSchema = z.object({
   isBlocked: z.boolean(),
   createdAt: z.string(),
   hasTelegram: z.boolean(),
+  /** Telegram @username or null (not linked / hidden in Telegram settings). */
+  telegramUsername: z.string().nullable(),
   hasGoogle: z.boolean(),
   hasPassword: z.boolean(),
   /** Current plan name (free / pro / ultra) or null if no subscription. */
